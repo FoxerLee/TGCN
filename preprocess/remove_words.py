@@ -19,7 +19,7 @@ if dataset not in datasets:
 
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
-print(stop_words)
+# print(stop_words)
 
 # Read Word Vectors
 # word_vector_file = 'data/glove.6B/glove.6B.200d.txt'
@@ -28,8 +28,7 @@ print(stop_words)
 # dataset = '20ng'
 
 doc_content_list = []
-#with open('data/wiki_long_abstracts_en_text.txt', 'r') as f:
-with open('../data/corpus/' + dataset + '.txt', 'rb') as f:
+with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '.txt', 'rb') as f:
     for line in f.readlines():
         doc_content_list.append(line.strip().decode('latin1'))
 
@@ -65,8 +64,7 @@ for doc_content in doc_content_list:
 clean_corpus_str = '\n'.join(clean_docs)
 
 
-# with open('../data/wiki_long_abstracts_en_text.clean.txt', 'w') as f:
-with open('../data/' + dataset + '/' + dataset + '_clean.txt', 'w') as f:
+with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'w') as f:
     f.write(clean_corpus_str)
 
 #dataset = '20ng'
@@ -74,9 +72,7 @@ min_len = 10000
 aver_len = 0
 max_len = 0 
 
-# with open('../data/wiki_long_abstracts_en_text.txt', 'r') as f:
-# with open('../data/corpus/' + dataset + '.clean.txt', 'r') as f:
-with open('../data/' + dataset + '/' + dataset + '_clean.txt', 'r') as f:
+with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         line = line.strip()

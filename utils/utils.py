@@ -21,7 +21,7 @@ def sample_mask(idx, l):
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
 
-
+# never used
 def load_data(dataset_str):
     """
     Loads input data from gcn/data directory
@@ -45,15 +45,17 @@ def load_data(dataset_str):
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):
-        with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
+        with open('cleaned_data/' + dataset_str + '/graph/ind.' + dataset_str + '.' + names[i], 'rb') as f:
+        # with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
             if sys.version_info > (3, 0):
                 objects.append(pkl.load(f, encoding='latin1'))
             else:
                 objects.append(pkl.load(f))
 
     x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file(
-        "data/ind.{}.test.index".format(dataset_str))
+    test_idx_reorder = parse_index_file('cleaned_data/' + dataset_str + '/graph/' + dataset_str + '.test.index')
+    # test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
+    
     test_idx_range = np.sort(test_idx_reorder)
     print_log(x.shape, y.shape, tx.shape, ty.shape, allx.shape, ally.shape)
 
@@ -138,7 +140,8 @@ def load_corpus(dataset_str):
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'adj']
     objects = []
     for i in range(len(names)):
-        with open("./data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
+        with open('cleaned_data/' + dataset_str + '/graph/ind.' + dataset_str + '.' + names[i], 'rb') as f:
+        # with open("./data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
             if sys.version_info > (3, 0):
                 objects.append(pkl.load(f, encoding='latin1'))
             else:
@@ -151,8 +154,8 @@ def load_corpus(dataset_str):
     labels = np.vstack((ally, ty))
     # print(len(labels))
 
-    train_idx_orig = parse_index_file(
-        "./data/{}.train.index".format(dataset_str))
+    train_idx_orig = parse_index_file('cleaned_data/' + dataset_str + '/graph/' + dataset_str + '.train.index')
+    # train_idx_orig = parse_index_file("./data/{}.train.index".format(dataset_str))
     train_size = len(train_idx_orig)
 
     val_size = train_size - x.shape[0]

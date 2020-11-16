@@ -167,53 +167,57 @@ print_log(metrics.precision_recall_fscore_support(test_labels, test_pred, averag
 print_log("Micro average Test Precision, Recall and F1-Score...")
 print_log(metrics.precision_recall_fscore_support(test_labels, test_pred, average='micro'))
 
+
+
+
+
 # doc and word embeddings
-tmp = model.layer1.embedding.numpy()
-word_embeddings = tmp[train_size: adj.shape[0] - test_size]
-train_doc_embeddings = tmp[:train_size]  # include val docs
-test_doc_embeddings = tmp[adj.shape[0] - test_size:]
+# tmp = model.layer1.embedding.numpy()
+# word_embeddings = tmp[train_size: adj.shape[0] - test_size]
+# train_doc_embeddings = tmp[:train_size]  # include val docs
+# test_doc_embeddings = tmp[adj.shape[0] - test_size:]
 
-print_log('Embeddings:')
-print_log('\rWord_embeddings:'+str(len(word_embeddings)))
-print_log('\rTrain_doc_embeddings:'+str(len(train_doc_embeddings))) 
-print_log('\rTest_doc_embeddings:'+str(len(test_doc_embeddings))) 
-print_log('\rWord_embeddings:') 
-print(word_embeddings)
+# print_log('Embeddings:')
+# print_log('\rWord_embeddings:'+str(len(word_embeddings)))
+# print_log('\rTrain_doc_embeddings:'+str(len(train_doc_embeddings))) 
+# print_log('\rTest_doc_embeddings:'+str(len(test_doc_embeddings))) 
+# print_log('\rWord_embeddings:') 
+# print(word_embeddings)
 
-with open('./data/corpus/' + dataset + '_vocab.txt', 'r') as f:
-    words = f.readlines()
+# with open('./data/corpus/' + dataset + '_vocab.txt', 'r') as f:
+#     words = f.readlines()
 
-vocab_size = len(words)
-word_vectors = []
-for i in range(vocab_size):
-    word = words[i].strip()
-    word_vector = word_embeddings[i]
-    word_vector_str = ' '.join([str(x) for x in word_vector])
-    word_vectors.append(word + ' ' + word_vector_str)
+# vocab_size = len(words)
+# word_vectors = []
+# for i in range(vocab_size):
+#     word = words[i].strip()
+#     word_vector = word_embeddings[i]
+#     word_vector_str = ' '.join([str(x) for x in word_vector])
+#     word_vectors.append(word + ' ' + word_vector_str)
 
-word_embeddings_str = '\n'.join(word_vectors)
-with open('./data/' + dataset + '_word_vectors.txt', 'w') as f:
-    f.write(word_embeddings_str)
+# word_embeddings_str = '\n'.join(word_vectors)
+# with open('./data/' + dataset + '_word_vectors.txt', 'w') as f:
+#     f.write(word_embeddings_str)
 
 
 
-doc_vectors = []
-doc_id = 0
-for i in range(train_size):
-    doc_vector = train_doc_embeddings[i]
-    doc_vector_str = ' '.join([str(x) for x in doc_vector])
-    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
-    doc_id += 1
+# doc_vectors = []
+# doc_id = 0
+# for i in range(train_size):
+#     doc_vector = train_doc_embeddings[i]
+#     doc_vector_str = ' '.join([str(x) for x in doc_vector])
+#     doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+#     doc_id += 1
 
-for i in range(test_size):
-    doc_vector = test_doc_embeddings[i]
-    doc_vector_str = ' '.join([str(x) for x in doc_vector])
-    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
-    doc_id += 1
+# for i in range(test_size):
+#     doc_vector = test_doc_embeddings[i]
+#     doc_vector_str = ' '.join([str(x) for x in doc_vector])
+#     doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+#     doc_id += 1
 
-doc_embeddings_str = '\n'.join(doc_vectors)
-with open('./data/' + dataset + '_doc_vectors.txt', 'w') as f:
-    f.write(doc_embeddings_str)
+# doc_embeddings_str = '\n'.join(doc_vectors)
+# with open('./data/' + dataset + '_doc_vectors.txt', 'w') as f:
+#     f.write(doc_embeddings_str)
 
 
 

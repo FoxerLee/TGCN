@@ -40,7 +40,7 @@ doc_name_list = []
 doc_train_list = []
 doc_test_list = []
 
-with open('../data/' + dataset + '.txt', 'r') as f:
+with open('../cleaned_data/' + dataset + '/' + dataset + '.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         doc_name_list.append(line.strip())
@@ -53,7 +53,7 @@ with open('../data/' + dataset + '.txt', 'r') as f:
 # print(doc_test_list)
 
 doc_content_list = []
-with open('../data/corpus/' + dataset + '.clean.txt', 'r') as f:
+with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         doc_content_list.append(line.strip())
@@ -70,7 +70,7 @@ random.shuffle(train_ids)
 #train_ids = train_ids[:int(0.2 * len(train_ids))]
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
-with open('../data/' + dataset + '.train.index', 'w') as f:
+with open('../cleaned_data/' + dataset + '/graph/' + dataset + '.train.index', 'w') as f:
     f.write(train_ids_str)
 
 
@@ -82,7 +82,7 @@ print(test_ids)
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-with open('../data/' + dataset + '.test.index', 'w') as f:
+with open('../cleaned_data/' + dataset + '/graph/' + dataset + '.test.index', 'w') as f:
     f.write(test_ids_str)
 
 
@@ -98,10 +98,10 @@ for id in ids:
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 
-with open('../data/' + dataset + '_shuffle.txt', 'w') as f:
+with open('../cleaned_data/' + dataset + '/' + dataset + '_shuffle.txt', 'w') as f:
     f.write(shuffle_doc_name_str)
 
-with open('../data/corpus/' + dataset + '_shuffle.txt', 'w') as f:
+with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '_shuffle.txt', 'w') as f:
     f.write(shuffle_doc_words_str)
 
 
@@ -147,7 +147,7 @@ for i in range(vocab_size):
 
 vocab_str = '\n'.join(vocab)
 
-with open('../data/corpus/' + dataset + '_vocab.txt', 'w') as f:
+with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '_vocab.txt', 'w') as f:
     f.write(vocab_str)
 
 
@@ -216,7 +216,7 @@ for doc_meta in shuffle_doc_name_list:
 label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-with open('../data/corpus/' + dataset + '_labels.txt', 'w') as f:
+with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '_labels.txt', 'w') as f:
     f.write(label_list_str)
 
 
@@ -230,7 +230,7 @@ real_train_size = train_size - val_size  # - int(0.5 * train_size)
 real_train_doc_names = shuffle_doc_name_list[:real_train_size]
 real_train_doc_names_str = '\n'.join(real_train_doc_names)
 
-with open('../data/' + dataset + '.real_train.name', 'w') as f:
+with open('../cleaned_data/' + dataset + '/graph/' + dataset + '.real_train.name', 'w') as f:
     f.write(real_train_doc_names_str)
 
 
@@ -505,25 +505,25 @@ adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
 
 # dump objects
-with open("../data/ind.{}.x".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.x', 'wb') as f:
     pkl.dump(x, f)
 
-with open("../data/ind.{}.y".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.y', 'wb') as f:
     pkl.dump(y, f)
 
-with open("../data/ind.{}.tx".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.tx', 'wb') as f:
     pkl.dump(tx, f)
 
-with open("../data/ind.{}.ty".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.ty', 'wb') as f:
     pkl.dump(ty, f)
 
-with open("../data/ind.{}.allx".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.allx', 'wb') as f:
     pkl.dump(allx, f)
 
-with open("../data/ind.{}.ally".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.ally', 'wb') as f:
     pkl.dump(ally, f)
 
-with open("../data/ind.{}.adj".format(dataset), 'wb') as f:
+with open('../cleaned_data/' + dataset + '/graph/ind.' + dataset + '.adj', 'wb') as f:
     pkl.dump(adj, f)
 
 
