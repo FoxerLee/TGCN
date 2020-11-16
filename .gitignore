@@ -1,4 +1,2 @@
-__pycache__/*
-
 data/*
-cleaned_data/*
+.ipynb_checkpoints/*
