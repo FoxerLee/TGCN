@@ -22,11 +22,11 @@ cfg = CONFIG()
 if len(sys.argv) != 2:
 	sys.exit("Use: python train.py <dataset>")
 
-datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
+# datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
 dataset = sys.argv[1]
 
-if dataset not in datasets:
-	sys.exit("wrong dataset name")
+# if dataset not in datasets:
+	# sys.exit("wrong dataset name")
 cfg.dataset = dataset
 
 # Set random seed
@@ -34,8 +34,9 @@ seed = random.randint(1, 200)
 seed = 2019
 np.random.seed(seed)
 torch.manual_seed(seed)
-# if torch.cuda.is_available():
-#     torch.cuda.manual_seed(seed)
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+    print('Using GPU ', torch.cuda.get_device_name(0)) 
 
 
 # Settings
@@ -78,19 +79,19 @@ t_support = []
 for i in range(len(support)):
     t_support.append(torch.Tensor(support[i]))
 
-# if torch.cuda.is_available():
-#     model_func = model_func.cuda()
-#     t_features = t_features.cuda()
-#     t_y_train = t_y_train.cuda()
-#     t_y_val = t_y_val.cuda()
-#     t_y_test = t_y_test.cuda()
-#     t_train_mask = t_train_mask.cuda()
-#     tm_train_mask = tm_train_mask.cuda()
-#     for i in range(len(support)):
-#         t_support = [t.cuda() for t in t_support if True]
+if torch.cuda.is_available():
+    # model_func = model_func.to(device)
+    t_features = t_features.to(device)
+    t_y_train = t_y_train.to(device)
+    t_y_val = t_y_val.to(device)
+    t_y_test = t_y_test.to(device)
+    t_train_mask = t_train_mask.to(device)
+    tm_train_mask = tm_train_mask.to(device)
+    for i in range(len(support)):
+        t_support = [t.to(device) for t in t_support if True]
         
 model = model_func(input_dim=features.shape[0], support=t_support, num_classes=y_train.shape[1])
-
+model.to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -106,13 +107,13 @@ def evaluate(features, labels, mask):
     model.eval()
     with torch.no_grad():
         logits = model(features)
-        t_mask = torch.from_numpy(np.array(mask*1., dtype=np.float32))
-        tm_mask = torch.transpose(torch.unsqueeze(t_mask, 0), 1, 0).repeat(1, labels.shape[1])
+        t_mask = torch.from_numpy(np.array(mask*1., dtype=np.float32)).to(device)
+        tm_mask = torch.transpose(torch.unsqueeze(t_mask, 0), 1, 0).repeat(1, labels.shape[1]).to(device)
         loss = criterion(logits * tm_mask, torch.max(labels, 1)[1])
         pred = torch.max(logits, 1)[1]
         acc = ((pred == torch.max(labels, 1)[1]).float() * t_mask).sum().item() / t_mask.sum().item()
         
-    return loss.numpy(), acc, pred.numpy(), labels.numpy(), (time.time() - t_test)
+    return loss.cpu().numpy(), acc, pred.cpu().numpy(), labels.cpu().numpy(), (time.time() - t_test)
 
 
 

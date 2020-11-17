@@ -11,14 +11,18 @@ from utils.utils import clean_str, loadWord2Vec
 if len(sys.argv) != 2:
 	sys.exit("Use: python remove_words.py <dataset>")
 
-datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
+# datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
 dataset = sys.argv[1]
 
-if dataset not in datasets:
-	sys.exit("wrong dataset name")
+# if dataset not in datasets:
+# 	sys.exit("wrong dataset name")
 
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
+# if dataset == 'CHINESE':
+#     stop_words = set(stopwords.words('chinese'))
+# else:
+    # stop_words = set(stopwords.words('english'))
 # print(stop_words)
 
 # Read Word Vectors
@@ -28,15 +32,24 @@ stop_words = set(stopwords.words('english'))
 # dataset = '20ng'
 
 doc_content_list = []
-with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '.txt', 'rb') as f:
-    for line in f.readlines():
-        doc_content_list.append(line.strip().decode('latin1'))
+if dataset == 'CHINESE':
+    with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '.txt', 'r') as f:
+        for line in f.readlines():
+            doc_content_list.append(line.strip())
+else:
+    with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '.txt', 'rb') as f:
+        for line in f.readlines():
+            doc_content_list.append(line.strip().decode('latin1'))
 
 
 word_freq = {}  # to remove rare words
 
 for doc_content in doc_content_list:
-    temp = clean_str(doc_content)
+    if dataset == 'CHINESE':
+        temp = doc_content
+    else:
+        temp = clean_str(doc_content)
+        
     words = temp.split()
     for word in words:
         if word in word_freq:
@@ -46,15 +59,21 @@ for doc_content in doc_content_list:
 
 clean_docs = []
 for doc_content in doc_content_list:
-    temp = clean_str(doc_content)
+    if dataset == 'CHINESE':
+        temp = doc_content
+    else:
+        temp = clean_str(doc_content)
     words = temp.split()
     doc_words = []
     for word in words:
         # word not in stop_words and word_freq[word] >= 5
         if dataset == 'mr':
             doc_words.append(word)
+        # elif dataset == 'CHINESE':
+        #     doc_words.append(word)
         elif word not in stop_words and word_freq[word] >= 5:
             doc_words.append(word)
+        
 
     doc_str = ' '.join(doc_words).strip()
     #if doc_str == '':
@@ -67,7 +86,7 @@ clean_corpus_str = '\n'.join(clean_docs)
 with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'w') as f:
     f.write(clean_corpus_str)
 
-#dataset = '20ng'
+# dataset = '20ng'
 min_len = 10000
 aver_len = 0
 max_len = 0 
