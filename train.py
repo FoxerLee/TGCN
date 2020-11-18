@@ -48,12 +48,15 @@ tf.random.set_seed(seed)
 
 
 # Load data
+# adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(args.dataset)
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(args.dataset)
 
 
-features = sp.identity(features.shape[0])  # featureless
+# features = sp.identity(features.shape[0])  # featureless
 features = preprocess_features(features)
-
+print('features coordinates::', features[0].shape)
+print('features data::', features[1].shape)
+print('features shape::', features[2])
 
 
 if args.model == 'gcn':
@@ -71,15 +74,20 @@ elif args.model == 'dense':
 else:
     raise ValueError('Invalid argument for model: ' + str(args.model))
 
+# print(features)
 
-
-t_features = tf.convert_to_tensor(features)
+t_features = tf.SparseTensor(*features)
 t_y_train = tf.convert_to_tensor(y_train)
 t_y_val = tf.convert_to_tensor(y_val)
 t_y_test = tf.convert_to_tensor(y_test)
-t_train_mask = tf.convert_to_tensor(train_mask.astype(np.float32))
-tm_train_mask = tf.tile(tf.transpose(tf.expand_dims(t_train_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
+tm_train_mask = tf.convert_to_tensor(train_mask)
+# tm_train_mask = tf.tile(tf.transpose(tf.expand_dims(t_train_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
 
+tm_val_mask = tf.convert_to_tensor(val_mask)
+# tm_val_mask = tf.tile(tf.transpose(tf.expand_dims(t_val_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
+
+tm_test_mask = tf.convert_to_tensor(test_mask)
+# tm_test_mask = tf.tile(tf.transpose(tf.expand_dims(t_test_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
 
 
 # # Define placeholders
@@ -92,7 +100,9 @@ tm_train_mask = tf.tile(tf.transpose(tf.expand_dims(t_train_mask, 0), perm=[1, 0
 
 t_support = []
 for i in range(len(support)):
-    t_support.append(tf.convert_to_tensor(support[i]))
+    t_support.append(tf.cast(tf.SparseTensor(*support[i]), dtype=tf.float32))
+
+# t_support = [tf.cast(tf.SparseTensor(*support[0]), dtype=tf.float32)]
 
 # if torch.cuda.is_available():
 #     # model_func = model_func.to(device)
@@ -109,7 +119,7 @@ for i in range(len(support)):
 # model.to(device)
 
 # Create model
-model = GCN(input_dim=features.shape[0], output_dim=y_train.shape[1], num_features_nonzero=features[1].shape) # [1433]
+model = GCN(input_dim=features[2][1], output_dim=y_train.shape[1], num_features_nonzero=features[1].shape) # [1433]
 
 
 
@@ -126,7 +136,7 @@ for epoch in range(args.epochs):
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-    _, val_acc = model((t_features, t_y_val, val_mask, t_support), training=False)
+    _, val_acc = model((t_features, t_y_val, tm_val_mask, t_support), training=False)
 
 
     if epoch % 20 == 0:
@@ -135,7 +145,7 @@ for epoch in range(args.epochs):
 
 
 
-test_loss, test_acc = model((features, test_label, test_mask, support), training=False)
+test_loss, test_acc = model((t_features, t_y_test, tm_test_mask, t_support), training=False)
 
 
 print('\ttest:', float(test_loss), float(test_acc))
