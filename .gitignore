@@ -1,2 +1,4 @@
 data/*
 .ipynb_checkpoints/*
+cleaned_data/*
+baselines/.ipynb_checkpoints/*
