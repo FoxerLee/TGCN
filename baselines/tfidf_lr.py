@@ -1,11 +1,12 @@
 ##-----------------------------------------------------------##
-# Try to use: python tfidf_lr.py <dataset> to test the accuracy
+# Try to use: python tfidf_lr.py <dataset> to show performance
 # Results till now:
 # R8: 94.88%
 # R52: 87.42%
 # ohsumed: 54.86%
 # THUTC: 93.67%
 # To be continued...
+##-----------------------------------------------------------##
 
 import numpy as np
 import pandas as pd
