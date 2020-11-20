@@ -4,6 +4,7 @@
 # R8: 94.88%
 # R52: 87.42%
 # ohsumed: 54.86%
+# THUTC: 93.67%
 # To be continued...
 
 import numpy as np
@@ -19,7 +20,7 @@ import sys
 if len(sys.argv)!=2:
     sys.exit("Use: python tfidf_lr.py <dataset>")
 
-datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'Chinese_L', 'Chinese_S']
+datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'Chinese_L', 'THUTC']
 dataset = sys.argv[1]
 
 if dataset not in datasets:
