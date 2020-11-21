@@ -1,11 +1,13 @@
 ##-----------------------------------------------------------##
 # Try to use: python tfidf_lr.py <dataset> to show performance
 # Results till now:
+#
 # R8: 94.88%
 # R52: 87.42%
+# 20ng: 82.16%
 # ohsumed: 54.86%
 # THUTC: 93.67%
-# To be continued...
+# fastTextData: 95.75%
 ##-----------------------------------------------------------##
 
 import numpy as np
