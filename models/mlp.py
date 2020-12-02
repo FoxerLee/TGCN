@@ -1,8 +1,8 @@
-import  tensorflow as tf
-from    tensorflow import keras
-from    models.layers import *
-from    models.metrics import *
-from    config import args 
+import tensorflow as tf
+from tensorflow import keras
+from models.layers import *
+from utils.metrics import *
+from config import args 
 
 
 class MLP(keras.Model):

@@ -10,7 +10,7 @@ from models.gcn import GCN
 from models.mlp import MLP
 from config import args
 
-import  os
+import os
 
 
 
@@ -21,7 +21,6 @@ tf.random.set_seed(seed)
 
 
 # Load data
-# adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(args.dataset)
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(args.dataset)
 
 features = sp.identity(features.shape[0])  # featureless
@@ -33,67 +32,39 @@ print('features data::', features[1].shape)
 print('features shape::', features[2])
 
 
-if args.model == 'gcn':
-    support = [preprocess_adj(adj)]
-    num_supports = 1
-    model_func = GCN
-elif args.model == 'gcn_cheby':
-    support = chebyshev_polynomials(adj, args.max_degree)
-    num_supports = 1 + args.max_degree
-    model_func = GCN
-elif args.model == 'dense':
-    support = [preprocess_adj(adj)]  # Not used
-    num_supports = 1
-    model_func = MLP
-else:
-    raise ValueError('Invalid argument for model: ' + str(args.model))
+# if args.model == 'gcn':
+#     support = [preprocess_adj(adj)]
+#     num_supports = 1
+#     model_func = GCN
+# elif args.model == 'gcn_cheby':
+#     support = chebyshev_polynomials(adj, args.max_degree)
+#     num_supports = 1 + args.max_degree
+#     model_func = GCN
+# elif args.model == 'dense':
+#     support = [preprocess_adj(adj)]  # Not used
+#     num_supports = 1
+#     model_func = MLP
+# else:
+#     raise ValueError('Invalid argument for model: ' + str(args.model))
+support = [preprocess_adj(adj)]
 
-# print(features)
 
 t_features = tf.SparseTensor(*features)
 t_y_train = tf.convert_to_tensor(y_train)
 t_y_val = tf.convert_to_tensor(y_val)
 t_y_test = tf.convert_to_tensor(y_test)
 tm_train_mask = tf.convert_to_tensor(train_mask)
-# tm_train_mask = tf.tile(tf.transpose(tf.expand_dims(t_train_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
 
 tm_val_mask = tf.convert_to_tensor(val_mask)
-# tm_val_mask = tf.tile(tf.transpose(tf.expand_dims(t_val_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
-
 tm_test_mask = tf.convert_to_tensor(test_mask)
-# tm_test_mask = tf.tile(tf.transpose(tf.expand_dims(t_test_mask, 0), perm=[1, 0]), [1, y_train.shape[1]])
-
-
-# # Define placeholders
-# t_features = torch.from_numpy(features)
-# t_y_train = torch.from_numpy(y_train)
-# t_y_val = torch.from_numpy(y_val)
-# t_y_test = torch.from_numpy(y_test)
-# t_train_mask = torch.from_numpy(train_mask.astype(np.float32))
-# tm_train_mask = torch.transpose(torch.unsqueeze(t_train_mask, 0), 1, 0).repeat(1, y_train.shape[1])
 
 t_support = []
 for i in range(len(support)):
     t_support.append(tf.cast(tf.SparseTensor(*support[i]), dtype=tf.float64))
 
-# t_support = [tf.cast(tf.SparseTensor(*support[0]), dtype=tf.float32)]
-
-# if torch.cuda.is_available():
-#     # model_func = model_func.to(device)
-#     t_features = t_features.to(device)
-#     t_y_train = t_y_train.to(device)
-#     t_y_val = t_y_val.to(device)
-#     t_y_test = t_y_test.to(device)
-#     t_train_mask = t_train_mask.to(device)
-#     tm_train_mask = tm_train_mask.to(device)
-#     for i in range(len(support)):
-#         t_support = [t.to(device) for t in t_support if True]
-        
-# model = model_func(input_dim=features.shape[0], support=t_support, num_classes=y_train.shape[1])
-# model.to(device)
 
 # Create model
-model = GCN(input_dim=features[2][1], output_dim=y_train.shape[1], num_features_nonzero=features[1].shape) # [1433]
+model = GCN(input_dim=features[2][1], output_dim=y_train.shape[1], num_features_nonzero=features[1].shape)
 
 
 

@@ -1,8 +1,8 @@
-import  tensorflow as tf
-from    tensorflow import keras
-from    models.layers import *
-from    models.metrics import *
-from    config import args 
+import tensorflow as tf
+from tensorflow import keras
+from models.layers import *
+from utils.metrics import *
+from config import args 
 
 
 class GCN(keras.Model):
@@ -26,9 +26,6 @@ class GCN(keras.Model):
                                             is_sparse_inputs=True))
 
 
-
-
-
         self.layers_.append(GraphConvolution(input_dim=args.hidden1, # 16
                                             output_dim=self.output_dim, # 7
                                             num_features_nonzero=num_features_nonzero,
@@ -39,13 +36,8 @@ class GCN(keras.Model):
         for p in self.trainable_variables:
             print(p.name, p.shape)
 
+            
     def call(self, inputs, training=None):
-        """
-
-        :param inputs:
-        :param training:
-        :return:
-        """
         x, label, mask, support = inputs
 
         outputs = [x]
