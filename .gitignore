@@ -1,4 +1,7 @@
 data/*
 .ipynb_checkpoints/*
-cleaned_data/*
+# cleaned_data/*
 baselines/.ipynb_checkpoints/*
+
+*.pyc
+*.pyo
