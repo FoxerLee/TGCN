@@ -1,48 +1,21 @@
-# from __future__ import division
-# from __future__ import print_function
-# from sklearn import metrics
-# import random
-# import time
-# import sys
-# import os
-
-# import torch
-# import torch.nn as nn
-
 import numpy as np
 
-# from utils.utils import *
-# from models.gcn import GCN
-# from models.mlp import MLP
 
-# from config import CONFIG
-# cfg = CONFIG()
+import time
+import tensorflow as tf
+from tensorflow.keras import optimizers
 
-import  time
-import  tensorflow as tf
-from    tensorflow.keras import optimizers
-
-from    utils.utils import *
-from    models import GCN, MLP
-from    config import args
+from utils.utils import *
+from models.gcn import GCN
+from models.mlp import MLP
+from config import args
 
 import  os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-print('tf version:', tf.__version__)
-assert tf.__version__.startswith('2.')
 
 
-# if len(sys.argv) != 2:
-	# sys.exit("Use: python train.py <dataset>")
-
-# dataset = sys.argv[1]
-
-# if dataset not in datasets:
-	# sys.exit("wrong dataset name")
-# cfg.dataset = dataset
 
 # set random seed
-seed = 123
+seed = 6606
 np.random.seed(seed)
 tf.random.set_seed(seed)
 
@@ -51,9 +24,10 @@ tf.random.set_seed(seed)
 # adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(args.dataset)
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(args.dataset)
 
-
-# features = sp.identity(features.shape[0])  # featureless
+features = sp.identity(features.shape[0])  # featureless
 features = preprocess_features(features)
+
+
 print('features coordinates::', features[0].shape)
 print('features data::', features[1].shape)
 print('features shape::', features[2])
@@ -100,7 +74,7 @@ tm_test_mask = tf.convert_to_tensor(test_mask)
 
 t_support = []
 for i in range(len(support)):
-    t_support.append(tf.cast(tf.SparseTensor(*support[i]), dtype=tf.float32))
+    t_support.append(tf.cast(tf.SparseTensor(*support[i]), dtype=tf.float64))
 
 # t_support = [tf.cast(tf.SparseTensor(*support[0]), dtype=tf.float32)]
 
@@ -139,9 +113,9 @@ for epoch in range(args.epochs):
     _, val_acc = model((t_features, t_y_val, tm_val_mask, t_support), training=False)
 
 
-    if epoch % 20 == 0:
+#     if epoch % 20 == 0:
 
-        print(epoch, float(loss), float(acc), '\tval:', float(val_acc))
+    print(epoch, float(loss), float(acc), '\tval:', float(val_acc))
 
 
 

@@ -25,11 +25,11 @@ def sparse_dropout(x, rate, noise_shape):
     """
     Dropout for sparse tensors.
     """
-    random_tensor = 1 - rate
+    random_tensor = rate
     random_tensor += tf.random.uniform(noise_shape)
     dropout_mask = tf.cast(tf.floor(random_tensor), dtype=tf.bool)
     pre_out = tf.sparse.retain(x, dropout_mask)
-    return pre_out * (1./(1 - rate))
+    return pre_out * (1./(rate))
 
 
 def dot(x, y, sparse=False):
