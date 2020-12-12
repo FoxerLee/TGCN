@@ -1,8 +1,8 @@
+money-fx
 earn
-ship
 interest
-acq
+crude
 grain
 trade
-crude
-money-fx
+acq
+ship

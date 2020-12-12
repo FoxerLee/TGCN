@@ -4,48 +4,37 @@ import numpy as np
 import time
 import tensorflow as tf
 from tensorflow.keras import optimizers
+from sklearn import metrics
 
 from utils.utils import *
 from models.gcn import GCN
-from models.mlp import MLP
-from config import args
 
+from config import CONFIG
 import os
 
 
+cfg = CONFIG()
 
 # set random seed
 seed = 6606
 np.random.seed(seed)
 tf.random.set_seed(seed)
 
+if len(sys.argv) != 2:
+    sys.exit("Use: python train.py <dataset>")
+    
+dataset = sys.argv[1]
+cfg.dataset = dataset    
+    
+
 
 # Load data
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(args.dataset)
+adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(cfg.dataset)
 
 features = sp.identity(features.shape[0])  # featureless
 features = preprocess_features(features)
 
 
-print('features coordinates::', features[0].shape)
-print('features data::', features[1].shape)
-print('features shape::', features[2])
-
-
-# if args.model == 'gcn':
-#     support = [preprocess_adj(adj)]
-#     num_supports = 1
-#     model_func = GCN
-# elif args.model == 'gcn_cheby':
-#     support = chebyshev_polynomials(adj, args.max_degree)
-#     num_supports = 1 + args.max_degree
-#     model_func = GCN
-# elif args.model == 'dense':
-#     support = [preprocess_adj(adj)]  # Not used
-#     num_supports = 1
-#     model_func = MLP
-# else:
-#     raise ValueError('Invalid argument for model: ' + str(args.model))
 support = [preprocess_adj(adj)]
 
 
@@ -68,154 +57,102 @@ model = GCN(input_dim=features[2][1], output_dim=y_train.shape[1], num_features_
 
 
 
-
-
 # Loss and optimizer
-optimizer = optimizers.Adam(lr=args.learning_rate)
+optimizer = optimizers.Adam(lr=cfg.learning_rate)
 
+cost_val = []
 
-for epoch in range(args.epochs):
-
+for epoch in range(cfg.epochs):
+    
+    t = time.time()
     with tf.GradientTape() as tape:
-        loss, acc = model((t_features, t_y_train, tm_train_mask, t_support))
+        _, loss, acc = model((t_features, t_y_train, tm_train_mask, t_support))
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-    _, val_acc = model((t_features, t_y_val, tm_val_mask, t_support), training=False)
-
-
-#     if epoch % 20 == 0:
-
-    print(epoch, float(loss), float(acc), '\tval:', float(val_acc))
-
-
-
-test_loss, test_acc = model((t_features, t_y_test, tm_test_mask, t_support), training=False)
-
-
-print('\ttest:', float(test_loss), float(test_acc))
-
-# Define model evaluation function
-# def evaluate(features, labels, mask):
-#     t_test = time.time()
-#     # feed_dict_val = construct_feed_dict(
-#     #     features, support, labels, mask, placeholders)
-#     # outs_val = sess.run([model.loss, model.accuracy, model.pred, model.labels], feed_dict=feed_dict_val)
-#     model.eval()
-#     with torch.no_grad():
-#         logits = model(features)
-#         t_mask = torch.from_numpy(np.array(mask*1., dtype=np.float32)).to(device)
-#         tm_mask = torch.transpose(torch.unsqueeze(t_mask, 0), 1, 0).repeat(1, labels.shape[1]).to(device)
-#         loss = criterion(logits * tm_mask, torch.max(labels, 1)[1])
-#         pred = torch.max(logits, 1)[1]
-#         acc = ((pred == torch.max(labels, 1)[1]).float() * t_mask).sum().item() / t_mask.sum().item()
-        
-#     return loss.cpu().numpy(), acc, pred.cpu().numpy(), labels.cpu().numpy(), (time.time() - t_test)
-
-
-
-# val_losses = []
-
-# # Train model
-# for epoch in range(cfg.epochs):
-
-#     t = time.time()
+    _, val_loss, val_acc = model((t_features, t_y_val, tm_val_mask, t_support), training=False)
+    cost_val.append(val_loss)
     
-#     # Forward pass
-#     logits = model(t_features)
-#     loss = criterion(logits * tm_train_mask, torch.max(t_y_train, 1)[1])    
-#     acc = ((torch.max(logits, 1)[1] == torch.max(t_y_train, 1)[1]).float() * t_train_mask).sum().item() / t_train_mask.sum().item()
-        
-#     # Backward and optimize
-#     optimizer.zero_grad()
-#     loss.backward()
-#     optimizer.step()
+    print("Epoch:", '%04d' % (epoch + 1), "train_loss=", "{:.5f}".format(loss),
+          "train_acc=", "{:.5f}".format(acc), "val_loss=", "{:.5f}".format(val_loss),
+          "val_acc=", "{:.5f}".format(val_acc), "time=", "{:.5f}".format(time.time() - t))
+    
+    if epoch > cfg.early_stopping and cost_val[-1] > np.mean(cost_val[-(cfg.early_stopping+1):-1]):
+        print("Early stopping...")
+        break
 
-#     # Validation
-#     val_loss, val_acc, pred, labels, duration = evaluate(t_features, t_y_val, val_mask)
-#     val_losses.append(val_loss)
-
-#     print_log("Epoch: {:.0f}, train_loss= {:.5f}, train_acc= {:.5f}, val_loss= {:.5f}, val_acc= {:.5f}, time= {:.5f}"\
-#                 .format(epoch + 1, loss, acc, val_loss, val_acc, time.time() - t))
-
-#     if epoch > cfg.early_stopping and val_losses[-1] > np.mean(val_losses[-(cfg.early_stopping+1):-1]):
-#         print_log("Early stopping...")
-#         break
+def evaluate(features, y, mask, support):
+    t = time.time()
+    
+    pred, test_loss, test_acc = model((features, y, mask, support), training=False)
+    
+    
+    return test_loss, test_acc, pred, np.argmax(y, axis=1), time.time() - t
 
 
-# print_log("Optimization Finished!")
+test_cost, test_acc, pred, labels, test_duration = evaluate(t_features, t_y_test, tm_test_mask, t_support)
+print("Test set results:", "cost=", "{:.5f}".format(test_cost), "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))
 
 
-# # Testing
-# test_loss, test_acc, pred, labels, test_duration = evaluate(t_features, t_y_test, test_mask)
-# print_log("Test set results: \n\t loss= {:.5f}, accuracy= {:.5f}, time= {:.5f}".format(test_loss, test_acc, test_duration))
+test_pred = []
+test_labels = []
 
-# test_pred = []
-# test_labels = []
-# for i in range(len(test_mask)):
-#     if test_mask[i]:
-#         test_pred.append(pred[i])
-#         test_labels.append(np.argmax(labels[i]))
+for i in range(len(test_mask)):
+    if test_mask[i]:
+        test_pred.append(pred[i])
+        test_labels.append(labels[i])
 
-
-# print_log("Test Precision, Recall and F1-Score...")
-# print_log(metrics.classification_report(test_labels, test_pred, digits=4))
-# print_log("Macro average Test Precision, Recall and F1-Score...")
-# print_log(metrics.precision_recall_fscore_support(test_labels, test_pred, average='macro'))
-# print_log("Micro average Test Precision, Recall and F1-Score...")
-# print_log(metrics.precision_recall_fscore_support(test_labels, test_pred, average='micro'))
+print("Average Test Precision, Recall and F1-Score...")
+print(metrics.precision_recall_fscore_support(test_labels, test_pred, average='micro'))
 
 
 
 
+embeddings = model.layers_[0].embedding
 
-# doc and word embeddings
-# tmp = model.layer1.embedding.numpy()
-# word_embeddings = tmp[train_size: adj.shape[0] - test_size]
-# train_doc_embeddings = tmp[:train_size]  # include val docs
-# test_doc_embeddings = tmp[adj.shape[0] - test_size:]
+word_embeddings = embeddings[train_size: adj.shape[0] - test_size]
+train_doc_embeddings = embeddings[:train_size]  # include val docs
+test_doc_embeddings = embeddings[adj.shape[0] - test_size:]
 
-# print_log('Embeddings:')
-# print_log('\rWord_embeddings:'+str(len(word_embeddings)))
-# print_log('\rTrain_doc_embeddings:'+str(len(train_doc_embeddings))) 
-# print_log('\rTest_doc_embeddings:'+str(len(test_doc_embeddings))) 
-# print_log('\rWord_embeddings:') 
-# print(word_embeddings)
+print('storing word embeddings...')
+f = open('./cleaned_data/' + cfg.dataset + '/corpus/' + cfg.dataset +  '_vocab.txt', 'r')
+words = f.readlines()
+f.close()
 
-# with open('./data/corpus/' + dataset + '_vocab.txt', 'r') as f:
-#     words = f.readlines()
+vocab_size = len(words)
+word_vectors = []
+for i in range(vocab_size):
+    word = words[i].strip()
+    word_vector = word_embeddings[i]
+    word_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in word_vector])
+    word_vectors.append(word + ' ' + word_vector_str)
 
-# vocab_size = len(words)
-# word_vectors = []
-# for i in range(vocab_size):
-#     word = words[i].strip()
-#     word_vector = word_embeddings[i]
-#     word_vector_str = ' '.join([str(x) for x in word_vector])
-#     word_vectors.append(word + ' ' + word_vector_str)
-
-# word_embeddings_str = '\n'.join(word_vectors)
-# with open('./data/' + dataset + '_word_vectors.txt', 'w') as f:
-#     f.write(word_embeddings_str)
+word_embeddings_str = '\n'.join(word_vectors)
+f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_word_vectors.txt', 'w')
+f.write(word_embeddings_str)
+f.close()
+print("finish...")
 
 
 
-# doc_vectors = []
-# doc_id = 0
-# for i in range(train_size):
-#     doc_vector = train_doc_embeddings[i]
-#     doc_vector_str = ' '.join([str(x) for x in doc_vector])
-#     doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
-#     doc_id += 1
+print('storing doc embeddings...')
+doc_vectors = []
+doc_id = 0
+for i in range(train_size):
+    doc_vector = train_doc_embeddings[i]
+    doc_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in doc_vector])
+    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+    doc_id += 1
 
-# for i in range(test_size):
-#     doc_vector = test_doc_embeddings[i]
-#     doc_vector_str = ' '.join([str(x) for x in doc_vector])
-#     doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
-#     doc_id += 1
+for i in range(test_size):
+    doc_vector = test_doc_embeddings[i]
+    doc_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in doc_vector])
+    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+    doc_id += 1
 
-# doc_embeddings_str = '\n'.join(doc_vectors)
-# with open('./data/' + dataset + '_doc_vectors.txt', 'w') as f:
-#     f.write(doc_embeddings_str)
+doc_embeddings_str = '\n'.join(doc_vectors)
+f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_doc_vectors.txt', 'w')
+f.write(doc_embeddings_str)
+f.close()
 
-
-
+print("finish...")

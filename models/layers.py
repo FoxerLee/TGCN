@@ -2,9 +2,6 @@ from utils.inits import *
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from config import args
-
-
 
 
 # global unique layer ID dictionary for layer name assignment
@@ -110,6 +107,7 @@ class GraphConvolution(layers.Layer):
         self.featureless = featureless
         self.bias = bias
         self.num_features_nonzero = num_features_nonzero
+        self.embedding = None
 
         self.weights_ = []
         for i in range(1):
@@ -118,9 +116,6 @@ class GraphConvolution(layers.Layer):
         if self.bias:
             self.bias = self.add_variable('bias', [output_dim])
 
-
-        # for p in self.trainable_variables:
-        #     print(p.name, p.shape)
 
 
 
@@ -150,5 +145,6 @@ class GraphConvolution(layers.Layer):
         # bias
         if self.bias:
             output += self.bias
-
+        
+        self.embedding = output # for visualization
         return self.activation(output)

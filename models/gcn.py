@@ -2,7 +2,9 @@ import tensorflow as tf
 from tensorflow import keras
 from models.layers import *
 from utils.metrics import *
-from config import args 
+from config import CONFIG
+
+cfg = CONFIG()
 
 
 class GCN(keras.Model):
@@ -19,18 +21,18 @@ class GCN(keras.Model):
 
         self.layers_ = []
         self.layers_.append(GraphConvolution(input_dim=self.input_dim, # 1433
-                                            output_dim=args.hidden1, # 16
+                                            output_dim=cfg.hidden1, # 16
                                             num_features_nonzero=num_features_nonzero,
                                             activation=tf.nn.relu,
-                                            dropout=args.dropout,
+                                            dropout=cfg.dropout,
                                             is_sparse_inputs=True))
 
 
-        self.layers_.append(GraphConvolution(input_dim=args.hidden1, # 16
+        self.layers_.append(GraphConvolution(input_dim=cfg.hidden1, # 16
                                             output_dim=self.output_dim, # 7
                                             num_features_nonzero=num_features_nonzero,
                                             activation=lambda x: x,
-                                            dropout=args.dropout))
+                                            dropout=cfg.dropout))
 
 
         for p in self.trainable_variables:
@@ -50,14 +52,14 @@ class GCN(keras.Model):
         # # Weight decay loss
         loss = tf.zeros([])
         for var in self.layers_[0].trainable_variables:
-            loss += args.weight_decay * tf.nn.l2_loss(var)
+            loss += cfg.weight_decay * tf.nn.l2_loss(var)
 
         # Cross entropy error
         loss += masked_softmax_cross_entropy(output, label, mask)
 
         acc = masked_accuracy(output, label, mask)
 
-        return loss, acc
+        return tf.argmax(output, 1), loss, acc
 
 
 

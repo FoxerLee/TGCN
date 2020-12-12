@@ -9,30 +9,18 @@ from utils.utils import clean_str, loadWord2Vec
 
 
 if len(sys.argv) != 2:
-	sys.exit("Use: python remove_words.py <dataset>")
+    sys.exit("Use: python remove_words.py <dataset>")
 
-# datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
+
 dataset = sys.argv[1]
 
-# if dataset not in datasets:
-# 	sys.exit("wrong dataset name")
 
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
-# if dataset == 'CHINESE':
-#     stop_words = set(stopwords.words('chinese'))
-# else:
-    # stop_words = set(stopwords.words('english'))
-# print(stop_words)
 
-# Read Word Vectors
-# word_vector_file = 'data/glove.6B/glove.6B.200d.txt'
-# vocab, embd, word_vector_map = loadWord2Vec(word_vector_file)
-# word_embeddings_dim = len(embd[0])
-# dataset = '20ng'
 
 doc_content_list = []
-if dataset == 'CHINESE':
+if dataset == 'CHINESE' or dataset == 'THUCTC':
     with open('../cleaned_data/' + dataset + '/corpus/' + dataset + '.txt', 'r') as f:
         for line in f.readlines():
             doc_content_list.append(line.strip())
@@ -45,7 +33,7 @@ else:
 word_freq = {}  # to remove rare words
 
 for doc_content in doc_content_list:
-    if dataset == 'CHINESE':
+    if dataset == 'CHINESE' or dataset == 'THUCTC':
         temp = doc_content
     else:
         temp = clean_str(doc_content)
@@ -69,8 +57,6 @@ for doc_content in doc_content_list:
         # word not in stop_words and word_freq[word] >= 5
         if dataset == 'mr':
             doc_words.append(word)
-        # elif dataset == 'CHINESE':
-        #     doc_words.append(word)
         elif word not in stop_words and word_freq[word] >= 5:
             doc_words.append(word)
         
@@ -86,23 +72,4 @@ clean_corpus_str = '\n'.join(clean_docs)
 with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'w') as f:
     f.write(clean_corpus_str)
 
-# dataset = '20ng'
-min_len = 10000
-aver_len = 0
-max_len = 0 
-
-with open('../cleaned_data/' + dataset + '/' + dataset + '_clean.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-        line = line.strip()
-        temp = line.split()
-        aver_len = aver_len + len(temp)
-        if len(temp) < min_len:
-            min_len = len(temp)
-        if len(temp) > max_len:
-            max_len = len(temp)
-
-aver_len = 1.0 * aver_len / len(lines)
-print('Min_len : ' + str(min_len))
-print('Max_len : ' + str(max_len))
-print('Average_len : ' + str(aver_len))
+print("finish")
