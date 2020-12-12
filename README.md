@@ -22,13 +22,53 @@ cd ./preprocess
 python remove_words.py <dataset>
 python build_graph.py <dataset>
 ```
-
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
 ### Training
 
 ```bash
-cd ..
-python train.py --dataset <dataset>
+python train.py  <dataset>
 ```
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
+
+### Visualization
+
+```bash
+cd visual
+python tsne.py <dataset> <length>
+```
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
+
+The selections of `<length>` are `1`, `2`.
+
+
+## Data
+
+`R8` is provided in `cleaned_data` dictionary. Other datasets can be downloaded at Google drive.
+
+## Results
+
+### Accuracy
+
+<p align="center">
+<img src="visual/res.png" alt="res" width="60%" height="60%" />
+</p>
+
+### Embeddings
+
+R8 embeddings in first layer:
+
+<p align="center">
+<img src="visual/R8_1_vis.png" alt="res" width="35%" height="35%" />
+</p>
+
+R8 embeddings in second layer:
+
+<p align="center">
+<img src="visual/R8_2_vis.png" alt="res" width="35%" height="35%" />
+</p>
+
+More images can be found at `visual` dictionary.
+
 ## Reference
 
 - The official implementation: https://github.com/yao8839836/text_gcn
