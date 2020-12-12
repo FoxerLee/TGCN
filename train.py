@@ -106,36 +106,15 @@ print("Average Test Precision, Recall and F1-Score...")
 print(metrics.precision_recall_fscore_support(test_labels, test_pred, average='micro'))
 
 
+print('storing layer 1 embeddings...')
+
+embeddings_1 = model.layers_[0].embedding
+
+word_embeddings = embeddings_1[train_size: adj.shape[0] - test_size]
+train_doc_embeddings = embeddings_1[:train_size]  # include val docs
+test_doc_embeddings = embeddings_1[adj.shape[0] - test_size:]
 
 
-embeddings = model.layers_[0].embedding
-
-word_embeddings = embeddings[train_size: adj.shape[0] - test_size]
-train_doc_embeddings = embeddings[:train_size]  # include val docs
-test_doc_embeddings = embeddings[adj.shape[0] - test_size:]
-
-print('storing word embeddings...')
-f = open('./cleaned_data/' + cfg.dataset + '/corpus/' + cfg.dataset +  '_vocab.txt', 'r')
-words = f.readlines()
-f.close()
-
-vocab_size = len(words)
-word_vectors = []
-for i in range(vocab_size):
-    word = words[i].strip()
-    word_vector = word_embeddings[i]
-    word_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in word_vector])
-    word_vectors.append(word + ' ' + word_vector_str)
-
-word_embeddings_str = '\n'.join(word_vectors)
-f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_word_vectors.txt', 'w')
-f.write(word_embeddings_str)
-f.close()
-print("finish...")
-
-
-
-print('storing doc embeddings...')
 doc_vectors = []
 doc_id = 0
 for i in range(train_size):
@@ -151,7 +130,37 @@ for i in range(test_size):
     doc_id += 1
 
 doc_embeddings_str = '\n'.join(doc_vectors)
-f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_doc_vectors.txt', 'w')
+f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_1_vectors.txt', 'w')
+f.write(doc_embeddings_str)
+f.close()
+
+print("finish...")
+
+
+
+print('storing layer 2 embeddings...')
+embeddings_2 = model.layers_[1].embedding
+
+word_embeddings = embeddings_2[train_size: adj.shape[0] - test_size]
+train_doc_embeddings = embeddings_2[:train_size]  # include val docs
+test_doc_embeddings = embeddings_2[adj.shape[0] - test_size:]
+
+doc_vectors = []
+doc_id = 0
+for i in range(train_size):
+    doc_vector = train_doc_embeddings[i]
+    doc_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in doc_vector])
+    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+    doc_id += 1
+
+for i in range(test_size):
+    doc_vector = test_doc_embeddings[i]
+    doc_vector_str = ' '.join([str(tf.keras.backend.get_value(x)) for x in doc_vector])
+    doc_vectors.append('doc_' + str(doc_id) + ' ' + doc_vector_str)
+    doc_id += 1
+
+doc_embeddings_str = '\n'.join(doc_vectors)
+f = open('./cleaned_data/' + cfg.dataset + '/' + cfg.dataset +  '_2_vectors.txt', 'w')
 f.write(doc_embeddings_str)
 f.close()
 

@@ -6,11 +6,11 @@ import os
 import sys
 
 
-if len(sys.argv) != 2:
-    sys.exit("Use: python tsne.py <dataset>")
+if len(sys.argv) != 3:
+    sys.exit("Use: python tsne.py <dataset> <length>")
     
 dataset = sys.argv[1]
-target = 'doc'
+length = sys.argv[2]
 
 f = open('../cleaned_data/' + dataset + '/graph/' + dataset + '.train.index', 'r')
 lines = f.readlines()
@@ -32,7 +32,7 @@ for line in lines:
 
 target_names = list(target_names)
 
-f = open('../cleaned_data/' + dataset + '/' + dataset + '_' + target + '_vectors.txt', 'r')
+f = open('../cleaned_data/' + dataset + '/' + dataset + '_' + length + '_vectors.txt', 'r')
 lines = f.readlines()
 f.close()
 
@@ -62,7 +62,7 @@ for i, f in enumerate(fea_num):
 
 plt.legend(ncol=5, loc='upper center', bbox_to_anchor=(0.48, -0.08), fontsize=11)
 plt.tight_layout()
-plt.savefig(dataset+'_'+target+'_vis.png', format='png')
+plt.savefig(dataset+'_'+length+'_vis.png', format='png')
 # pdf.savefig()
 # plt.show()
 # pdf.close()

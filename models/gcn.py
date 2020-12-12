@@ -15,9 +15,8 @@ class GCN(keras.Model):
         self.input_dim = input_dim # 1433
         self.output_dim = output_dim
 
-        print('input dim:', input_dim)
-        print('output dim:', output_dim)
-        print('num_features_nonzero:', num_features_nonzero)
+        print('input  dim: ', input_dim)
+        print('output dim: ', output_dim)
 
         self.layers_ = []
         self.layers_.append(GraphConvolution(input_dim=self.input_dim, # 1433
@@ -34,9 +33,6 @@ class GCN(keras.Model):
                                             activation=lambda x: x,
                                             dropout=cfg.dropout))
 
-
-        for p in self.trainable_variables:
-            print(p.name, p.shape)
 
             
     def call(self, inputs, training=None):
