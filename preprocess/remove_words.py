@@ -47,7 +47,7 @@ for doc_content in doc_content_list:
 
 clean_docs = []
 for doc_content in doc_content_list:
-    if dataset == 'CHINESE':
+    if dataset == 'CHINESE' or dataset == 'THUCTC':
         temp = doc_content
     else:
         temp = clean_str(doc_content)
