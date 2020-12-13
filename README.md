@@ -78,4 +78,4 @@ More images can be found at `visual` dictionary.
 
 ## Contributors:
 * [Yuan Li](yl6606@nyu.edu)
-* [Dongzi Qi](dq394@nyu.edu)
+* [Dongzi Qu](dq394@nyu.edu)
