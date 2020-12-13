@@ -4,6 +4,7 @@ This project contains
 
 - Re-implementation of ["Graph Convolutional Networks for Text Classification"](https://arxiv.org/abs/1809.05679) in tensorflow 2.1.
 - Some baseline models mentioned in original paper.
+- Code is highly based on [official repository](https://github.com/yao8839836/text_gcn).
 
 
 ## Requirement
@@ -43,7 +44,7 @@ The selections of `<length>` are `1`, `2`.
 
 ## Data
 
-`R8` is provided in `cleaned_data` dictionary. Other datasets can be downloaded at Google drive.
+`R8` is provided in `cleaned_data` dictionary. Other datasets can be downloaded at [Google drive](https://drive.google.com/drive/folders/1D4lp9zgS4YdVQII_luJXdhzvPYhWaiB6?usp=sharing).
 
 ## Results
 
