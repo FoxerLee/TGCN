@@ -23,13 +23,13 @@ cd ./preprocess
 python remove_words.py <dataset>
 python build_graph.py <dataset>
 ```
-The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `CHINESE`.
 ### Training
 
 ```bash
 python train.py  <dataset>
 ```
-The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `CHINESE`.
 
 ### Visualization
 
@@ -37,7 +37,7 @@ The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chi
 cd visual
 python tsne.py <dataset> <length>
 ```
-The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `Chinese`.
+The selections of `<dataset>` are `R8`, `R52`, `20NG`, `ohsumed`, `THUCTC`, `CHINESE`.
 
 The selections of `<length>` are `1`, `2`.
 
