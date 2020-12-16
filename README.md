@@ -5,6 +5,8 @@ This project contains
 - Re-implementation of ["Graph Convolutional Networks for Text Classification"](https://arxiv.org/abs/1809.05679) in tensorflow 2.1.
 - Some baseline models mentioned in original paper.
 - Code is highly based on [official repository](https://github.com/yao8839836/text_gcn).
+  - Preprocess part is modified from [official repository](https://github.com/yao8839836/text_gcn).
+  - Model part is written by ourseleves.
 
 
 ## Requirement
